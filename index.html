@@ -9,111 +9,131 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <meta name="description" content="Autonome: Connect apps, automate workflows, and ship cross-app automation in minutes." />
   <style>
-    :root{--glass-bg:rgba(255,255,255,0.72);--glass-border:rgba(15,23,42,0.06);--text-primary:#0f172a;--muted:#64748b;--bg:linear-gradient(180deg,#f8fafc,#eef2ff);} 
+    :root{--glass-bg:rgba(255,255,255,0.92);--glass-border:rgba(15,23,42,0.06);--text-primary:#0f172a;--muted:#64748b;--bg:linear-gradient(180deg,#f8fafc,#eef2ff);} 
     .dark{--glass-bg:rgba(15,23,42,0.55);--glass-border:rgba(255,255,255,0.06);--text-primary:#e6eef8;--muted:#94a3b8;--bg:linear-gradient(180deg,#071028,#081428)}
     html{scroll-behavior:smooth}
     body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;color:var(--text-primary);background:var(--bg);}
-    .glass{background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border)}
-    .card-shadow{box-shadow:0 20px 40px rgba(99,102,241,0.06)}
-    .accent-shadow{box-shadow:0 18px 40px rgba(99,102,241,0.08)}
-    .btn-ghost{background:transparent;border:1px solid transparent}
-    /* subtle custom scrollbar */
-    ::-webkit-scrollbar{height:8px;width:8px}
-    ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#c7b3ff,#9be7ff);border-radius:999px}
-    /* Modal focus trap helper */
-    .modal-open { overflow: hidden; }
-
-    /* Dark-mode overrides for Tailwind utility classes used in markup */
-    .dark .text-slate-900, .dark .text-slate-800, .dark .text-slate-700 { color: var(--text-primary) !important; }
-    .dark .text-slate-600, .dark .text-slate-500, .dark .text-slate-400 { color: var(--muted) !important; }
-    .dark .text-slate-300, .dark .text-slate-200 { color: rgba(255,255,255,0.72) !important; }
-
-    /* Make white backgrounds darker in dark mode to preserve contrast */
-    .dark .bg-white { background-color: rgba(255,255,255,0.03) !important; }
-    .dark .bg-indigo-50 { background-color: rgba(99,102,241,0.04) !important; }
-
-    /* Borders in dark mode */
-    .dark .border-slate-100, .dark .border-slate-200, .dark .border-slate-300 { border-color: rgba(255,255,255,0.06) !important; }
-
-    /* Inputs & textareas */
-    .dark input, .dark textarea, .dark select { color: var(--text-primary) !important; background-color: rgba(255,255,255,0.02) !important; border-color: rgba(255,255,255,0.06) !important; }
-
-    /* Ensure small muted labels remain readable */
-    .dark .leading-relaxed, .dark .leading-tight { color: var(--muted) !important; }
+    .glass{background:var(--glass-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--glass-border);border-radius:16px}
+    .container{max-width:1100px;margin:0 auto;padding:28px}
+    .hero{display:flex;gap:32px;align-items:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px}
+    .btn-primary{background:#0f172a;color:white}
+    .btn-ghost{background:transparent;border:1px solid rgba(15,23,42,0.06)}
+    .dark .btn-ghost{border-color:rgba(255,255,255,0.06)}
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal{background:var(--glass-bg);padding:20px;border-radius:12px;max-width:900px;width:100%;display:flex;gap:20px}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    input,textarea,select{padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);background:transparent;color:inherit}
+    .dark input{border-color:rgba(255,255,255,0.06)}
+    @media(max-width:768px){.hero{flex-direction:column}.two-col{grid-template-columns:1fr}}
   </style>
   <script>
-    // Theme helper: detect system, persist to localStorage, and apply
     function applyTheme(theme){
-      const html = document.documentElement;
-      if(theme==='dark'){ html.classList.add('dark'); html.classList.remove('light'); }
-      else { html.classList.remove('dark'); html.classList.add('light'); }
-      localStorage.setItem('autonome_theme', theme);
-      window.AutonomeAnalytics = window.AutonomeAnalytics || {events:[]};
-      track('theme_change',{theme});
-      // update toggle icon
-      const tgl = document.getElementById('themeToggleIcon'); if(tgl) tgl.className = theme==='dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-      const tglm = document.getElementById('themeToggleIconMobile'); if(tglm) tglm.className = theme==='dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+      const html=document.documentElement;
+      if(theme==='dark'){html.classList.add('dark');html.classList.remove('light')}else{html.classList.remove('dark');html.classList.add('light')}
+      localStorage.setItem('autonome_theme',theme);
+      // analytics placeholder
+      window.AutonomeAnalytics=window.AutonomeAnalytics||{events:[]};window.AutonomeAnalytics.events.push({event:'theme_change',theme});
     }
     function initTheme(){
-      const saved = localStorage.getItem('autonome_theme');
-      if(saved) applyTheme(saved);
-      else {
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(prefersDark ? 'dark' : 'light');
-      }
+      const saved=localStorage.getItem('autonome_theme');
+      if(saved)applyTheme(saved);else{const prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;applyTheme(prefersDark?'dark':'light')}
     }
-    document.addEventListener('DOMContentLoaded', initTheme);
-  </script>
-  <!-- Analytics hook (placeholder) -->
-  <script>
-    window.AutonomeAnalytics = window.AutonomeAnalytics || {events:[]};
-    function track(event, props){ window.AutonomeAnalytics.events.push({event,props,t:Date.now()}); console.info('Analytics:',event,props)}
+    document.addEventListener('DOMContentLoaded',initTheme);
+    // modal
+    function openSignup(){document.getElementById('modalBackdrop').style.display='flex';document.getElementById('signupModal').focus()}
+    function closeSignup(){document.getElementById('modalBackdrop').style.display='none'}
+    function submitSignup(e){e.preventDefault();const data=new FormData(e.target);console.info('signup',Object.fromEntries(data));closeSignup();alert('Thanks! Check your email for a confirmation (demo)')}
   </script>
 </head>
-<body class="min-h-screen text-slate-800">
-  <header class="fixed inset-x-0 top-4 z-40 px-4">
-    <nav class="max-w-7xl mx-auto flex items-center justify-between glass rounded-3xl p-3 px-4 md:px-6 shadow-sm">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg">
-          <i class="fa-solid fa-robot text-lg"></i>
-        </div>
+<body>
+  <header style="position:sticky;top:12px;z-index:40">
+    <div class="container glass" style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:white"><i class="fa-solid fa-robot"></i></div>
         <div>
-          <a href="#" class="text-lg font-bold tracking-tight">Autonome</a>
-          <p class="text-xs text-slate-500 leading-3">Workflow orchestration across 500+ apps</p>
+          <div style="font-weight:700">Autonome</div>
+          <div style="font-size:12px;color:var(--muted)">Workflow orchestration across 500+ apps</div>
         </div>
       </div>
-      <div class="hidden md:flex items-center gap-4">
-        <a href="#features" class="text-sm text-slate-600 hover:text-slate-900">Features</a>
-        <a href="#pricing" class="text-sm text-slate-600 hover:text-slate-900">Pricing</a>
-        <a href="#integrations" class="text-sm text-slate-600 hover:text-slate-900">Integrations</a>
-        <a href="#contact" class="text-sm text-slate-600 hover:text-slate-900">Contact</a>
-        <button id="themeToggle" class="h-10 w-10 rounded-lg glass flex items-center justify-center" aria-label="Toggle theme"><i id="themeToggleIcon" class="fa-solid fa-sun"></i></button>
-        <button id="signBtn" class="h-10 px-4 rounded-lg bg-white border border-slate-200">Sign</button>
-        <button id="demoBtn" class="h-10 px-4 rounded-lg bg-slate-900 text-white font-semibold">Live Demo</button>
-      </div>
-      <div class="md:hidden flex items-center gap-2">
-        <button id="themeToggleMobile" class="p-2 rounded-lg glass" aria-label="Toggle theme"><i id="themeToggleIconMobile" class="fa-solid fa-sun"></i></button>
-        <button id="hamburger" class="p-2 rounded-lg text-slate-700 glass" aria-label="Open menu">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
-    </nav>
-  </header>
-
-  <!-- Mobile menu -->
-  <div id="mobileMenu" class="fixed inset-x-4 top-20 z-30 glass rounded-2xl p-4 shadow-lg transform -translate-y-2 scale-95 opacity-0 pointer-events-none transition-all">
-    <div class="flex flex-col gap-3">
-      <a href="#features" class="py-3 px-4 rounded-lg hover:bg-slate-50">Features</a>
-      <a href="#pricing" class="py-3 px-4 rounded-lg hover:bg-slate-50">Pricing</a>
-      <a href="#integrations" class="py-3 px-4 rounded-lg hover:bg-slate-50">Integrations</a>
-      <a href="#contact" class="py-3 px-4 rounded-lg hover:bg-slate-50">Contact</a>
-      <div class="flex gap-2">
-        <button id="mobileDemo" class="mt-2 h-12 rounded-lg bg-slate-900 text-white w-full">Live Demo</button>
-        <button id="mobileSign" class="mt-2 h-12 rounded-lg bg-white border border-slate-200 w-full">Sign</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn btn-ghost" onclick="applyTheme(document.documentElement.classList.contains('dark')?'light':'dark')"><i class="fa-solid fa-sun"></i></button>
+        <button class="btn btn-ghost" onclick="openSignup()">Sign</button>
+        <button class="btn btn-primary" onclick="openSignup()">Get started</button>
       </div>
     </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" style="padding:36px 0">
+      <div style="flex:1">
+        <h1 style="font-size:36px;line-height:1.05;margin:0 0 16px">Autonome — Connect apps, automate complex workflows, and ship cross-app automation</h1>
+        <p style="color:var(--muted);margin:0 0 20px">Build integrations across Slack, Gmail, GitHub, Google Workspace and 500+ tools — with no infra and powerful orchestrations.</p>
+        <div style="display:flex;gap:12px">
+          <button class="btn btn-primary" onclick="openSignup()">Get started</button>
+          <a class="btn btn-ghost" href="#features">Learn more</a>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:20px;color:var(--muted);font-size:13px">
+          <div><strong>Instant</strong> GitHub + Vercel deploys</div>
+          <div><strong>500+</strong> app integrations</div>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center">
+        <div style="width:360px;height:260px;border-radius:12px;background:linear-gradient(180deg,#fff,#f3f4f6);display:flex;align-items:center;justify-content:center;color:var(--muted);box-shadow:0 8px 30px rgba(2,6,23,0.06)">Preview Card</div>
+      </div>
+    </section>
+
+    <section id="features" style="padding:20px 0">
+      <h2>Features</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px">
+        <div class="glass" style="padding:12px"><strong>Orchestration</strong><div style="color:var(--muted);font-size:13px">Author complex multi-step workflows with branching and retries.</div></div>
+        <div class="glass" style="padding:12px"><strong>500+ Connectors</strong><div style="color:var(--muted);font-size:13px">Pre-built integrations across popular services.</div></div>
+        <div class="glass" style="padding:12px"><strong>Deploy</strong><div style="color:var(--muted);font-size:13px">Deploy landing pages and automation UI in seconds.</div></div>
+      </div>
+    </section>
+
+    <section id="pricing" style="padding:20px 0">
+      <h2>Pricing</h2>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div class="glass" style="padding:16px;min-width:200px"><strong>Starter</strong><div style="color:var(--muted);font-size:13px">Free - hobby projects</div></div>
+        <div class="glass" style="padding:16px;min-width:200px"><strong>Pro</strong><div style="color:var(--muted);font-size:13px">For teams</div></div>
+      </div>
+    </section>
+
+    <section id="contact" style="padding:20px 0">
+      <h2>Contact</h2>
+      <p style="color:var(--muted)">Reach out at hello@autonome.example</p>
+    </section>
+  </main>
+
+  <!-- Signup Modal -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true">
+    <form id="signupModal" class="modal" onsubmit="submitSignup(event)" tabindex="-1">
+      <div style="flex:1;min-width:280px">
+        <h3 style="margin:0 0 8px">Create your account</h3>
+        <p style="color:var(--muted);margin:0 0 12px">Sign up to get started with Autonome.</p>
+        <div class="two-col">
+          <div>
+            <div class="field"><label>Name</label><input name="name" required></div>
+            <div class="field"><label>Email</label><input name="email" type="email" required></div>
+            <div class="field"><label>Company</label><input name="company"></div>
+          </div>
+          <div>
+            <div class="field"><label>Password</label><input name="password" type="password" required></div>
+            <div class="field"><label>Role</label><select name="role"><option>Developer</option><option>Product</option><option>Ops</option></select></div>
+            <div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-primary" type="submit">Create account</button><button type="button" class="btn btn-ghost" onclick="closeSignup()">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </form>
   </div>
 
-  <main class="pt-28">... (truncated for brevity) ...</main>
+  <script>
+    // close modal on Escape and click outside
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignup()});
+    document.getElementById('modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop')closeSignup()});
+  </script>
 </body>
 </html>
